@@ -1,20 +1,13 @@
-# Production-Complete BookMySlot TODO
-Status: Port Fixed ✅ | Need `npm run seed` output → Dashboards next
+# Guide Pages Complete ✅
 
-## Phase 1: Core Setup (Completed/Running)
-- [x] Create backend/.env
-- [ ] MongoDB: Install/Start
-- [ ] Backend: cd backend && npm install && npm run seed && npm start
-- [ ] Frontend: cd frontend && npm install && npm run dev
-- [ ] Basic login test (http://localhost:5173)
+## Guide Features:
+- Dashboard.jsx: Sidebar → MyTeams/PendingRequests/TeamBookings
+- MyTeams.jsx: Teams list/add students/export
+- PendingRequests.jsx: Requests table approve/reject modal
+- TeamBookings.jsx: Bookings history/filter/export
 
-## Phase 2: Complete Dashboards
-- [ ] Admin: Full CRUD
-- [ ] Guide: Requests UI
-- [ ] Student: Slot booking
+**Test**: Login guide (rajesh.guide@example.com) → See teams/requests.
 
-## Phase 3: Production
-- [ ] Docker full
-- [ ] E2E tests
+**Admin Complete**, Guide Complete. Student Dashboard next?
 
-Updated: Now
+Updated: Guide ✅

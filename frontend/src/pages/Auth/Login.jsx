@@ -140,10 +140,10 @@ export default function LoginPage() {
                     Guide: tabid3377@gmail.com
                   </button>
                   <button
-                    onClick={() => setEmail("student1@example.com")}
+                    onClick={() => setEmail("bhargavpasupuleti5@gmail.com")}
                     className="w-full text-left px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300"
                   >
-                    Student: student1@example.com
+                    Student: bhargavpasupuleti5@gmail.com
                   </button>
                 </div>
               </div>

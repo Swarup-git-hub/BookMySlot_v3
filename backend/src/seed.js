@@ -16,7 +16,7 @@ dotenv.config({
   path: path.join(__dirname, "../.env"),
 });
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/review-slot";
+const MONGO_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/bookingslot";
 
 const seed = async () => {
   try {
@@ -42,82 +42,93 @@ const seed = async () => {
     console.log("✅ Admin created:", admin.email);
 
     // Create Guides
-    const guides = await User.insertMany([
-      {
-        name: "Dr. Rajesh Kumar",
-        email: "tabid3377@gmail.com",
-        role: "guide",
-        isActive: true,
-        createdBy: admin._id,
-      },
-      {
-        name: "Prof. Priya Sharma",
-        email: "priya.guide@example.com",
-        role: "guide",
-        isActive: true,
-        createdBy: admin._id,
-      },
-      {
-        name: "Dr. Amit Patel",
-        email: "amit.guide@example.com",
-        role: "guide",
-        isActive: true,
-        createdBy: admin._id,
-      },
-    ]);
-    console.log("✅ Created", guides.length, "guides");
+    const guide1 = await User.create({
+      name: "Dr. Rajesh Kumar",
+      email: "tabid3377@gmail.com",
+      role: "guide",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    const guide2 = await User.create({
+      name: "Prof. Priya Sharma",
+      email: "priya.guide@example.com",
+      role: "guide",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    const guide3 = await User.create({
+      name: "Dr. Amit Patel",
+      email: "amit.guide@example.com",
+      role: "guide",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    console.log("✅ Created 3 guides");
 
-    // Create Teams and Students
-    const teams = [];
-    const students = [];
+    // Create 5 Fixed Students
+    const student1 = await User.create({
+      name: "Bhargav Pasupuleti",
+      email: "bhargavpasupuleti5@gmail.com",
+      role: "student",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    const student2 = await User.create({
+      name: "Student 2",
+      email: "student2@example.com",
+      role: "student",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    const student3 = await User.create({
+      name: "Student 3",
+      email: "student3@example.com",
+      role: "student",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    const student4 = await User.create({
+      name: "Student 4",
+      email: "student4@example.com",
+      role: "student",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    const student5 = await User.create({
+      name: "Student 5",
+      email: "student5@example.com",
+      role: "student",
+      isActive: true,
+      createdBy: admin._id,
+    });
+    console.log("✅ Created 5 students (bhargavpasupuleti5@gmail.com is Student1)");
 
-    for (let g = 0; g < guides.length; g++) {
-      const guide = guides[g];
+    // Create Teams
+    const team1 = await Team.create({
+      name: "Team A",
+      guide: guide1._id,
+      members: [student1._id, student2._id, student3._id],
+      maxMembers: 5,
+      createdBy: admin._id,
+    });
+    const team2 = await Team.create({
+      name: "Team B",
+      guide: guide2._id,
+      members: [student4._id, student5._id],
+      maxMembers: 5,
+      createdBy: admin._id,
+    });
+    console.log("✅ Created 2 teams");
 
-      // Create 3 teams per guide
-      for (let t = 0; t < 3; t++) {
-        const teamName = `Team ${String.fromCharCode(65 + t)} - Guide ${g + 1}`;
+    // Update student teams
+    await User.updateMany(
+      { _id: { $in: [student1._id, student2._id, student3._id, student4._id, student5._id] } },
+      { $set: { team: team1._id } }
+    );
 
-        // Create students for this team
-        const teamStudents = [];
-        for (let s = 0; s < 4; s++) {
-          const student = await User.create({
-            name: `Student ${g * 3 * 4 + t * 4 + s + 1}`,
-            email: `student${g * 3 * 4 + t * 4 + s + 1}@example.com`,
-            role: "student",
-            isActive: true,
-            createdBy: admin._id,
-          });
-          teamStudents.push(student._id);
-          students.push(student);
-        }
-
-        // Create team
-        const team = await Team.create({
-          name: teamName,
-          guide: guide._id,
-          members: teamStudents,
-          maxMembers: 5,
-          createdBy: admin._id,
-        });
-
-        // Update students' team reference
-        await User.updateMany(
-          { _id: { $in: teamStudents } },
-          { $set: { team: team._id } }
-        );
-
-        teams.push(team);
-      }
-    }
-
-    console.log("✅ Created", teams.length, "teams with", students.length, "students");
-
-    // Create Sessions
+    // Create Sessions (7 days)
     const sessions = [];
-    const sessionsToCreate = 7;
-
-    for (let i = 0; i < sessionsToCreate; i++) {
+    for (let i = 0; i < 7; i++) {
       const date = new Date();
       date.setDate(date.getDate() + i);
       date.setHours(0, 0, 0, 0);
@@ -137,25 +148,21 @@ const seed = async () => {
           },
           slotDuration: 30,
         },
-        totalSlots: 10,
       });
-
       sessions.push(session);
     }
+    console.log("✅ Created 7 sessions");
 
-    console.log("✅ Created", sessions.length, "sessions");
-
-    // Generate Slots for Sessions
+    // Generate Slots
     for (const session of sessions) {
       const { configuration } = session;
       const slots = [];
 
-      // Forenoon slots
+      // Forenoon (5 slots)
       let lastEndTime = configuration.forenoon.startTime;
       for (let i = 1; i <= configuration.forenoon.slots; i++) {
         const startTime = lastEndTime;
         const endTime = addMinutesToTime(startTime, configuration.slotDuration);
-
         slots.push({
           session: session._id,
           period: "forenoon",
@@ -165,16 +172,14 @@ const seed = async () => {
           status: "available",
           isDisabled: false,
         });
-
         lastEndTime = endTime;
       }
 
-      // Afternoon slots
+      // Afternoon (5 slots)
       lastEndTime = configuration.afternoon.startTime;
       for (let i = 1; i <= configuration.afternoon.slots; i++) {
         const startTime = lastEndTime;
         const endTime = addMinutesToTime(startTime, configuration.slotDuration);
-
         slots.push({
           session: session._id,
           period: "afternoon",
@@ -184,72 +189,36 @@ const seed = async () => {
           status: "available",
           isDisabled: false,
         });
-
         lastEndTime = endTime;
       }
 
       await Slot.insertMany(slots);
     }
+    console.log("✅ Generated 70 slots (10 per session)");
 
-    console.log("✅ Generated slots for all sessions");
-
-    // Create Default Configuration
+    // Default Config
     await Config.updateOne(
       { configName: "default" },
       {
         $set: {
           session: {
-            forenoon: {
-              startTime: "09:00",
-              endTime: "13:00",
-              slotCount: 5,
-            },
-            afternoon: {
-              startTime: "14:00",
-              endTime: "18:00",
-              slotCount: 5,
-            },
+            forenoon: { startTime: "09:00", endTime: "13:00", slotCount: 5 },
+            afternoon: { startTime: "14:00", endTime: "18:00", slotCount: 5 },
           },
           slotDuration: 30,
-          team: {
-            minStudents: 1,
-            maxStudents: 5,
-            guideCanManage: 4,
-          },
-          otp: {
-            expiryMinutes: 5,
-            maxRequests: 5,
-          },
-          features: {
-            realTimeUpdates: true,
-            darkMode: true,
-            excelExport: true,
-            csvExport: true,
-          },
+          team: { minStudents: 1, maxStudents: 5, guideCanManage: 4 },
+          otp: { expiryMinutes: 5, maxRequests: 5 },
+          features: { realTimeUpdates: true, darkMode: true, excelExport: true, csvExport: true },
         },
       },
       { upsert: true }
     );
 
-    console.log("✅ Configuration created");
-
-    console.log("\n========== SEED DATA SUMMARY ==========");
-    console.log("✅ Admin:", admin.email);
-    console.log("✅ Guides:", guides.length);
-    console.log("✅ Teams:", teams.length);
-    console.log("✅ Students:", students.length);
-    console.log("✅ Sessions:", sessions.length);
-    console.log("✅ Total Slots:", sessions.length * 10);
-    console.log("=======================================\n");
-
-    console.log("📝 Login Credentials:");
-    console.log("Admin:", admin.email);
-    guides.slice(0, 2).forEach((g, i) => {
-      console.log(`Guide ${i + 1}:`, g.email);
-    });
-    students.slice(0, 3).forEach((s, i) => {
-      console.log(`Student ${i + 1}:`, s.email);
-    });
+    console.log("✅ Seed Complete!");
+    console.log("\nLogin:");
+    console.log("Admin: " + admin.email);
+    console.log("Student: bhargavpasupuleti5@gmail.com");
+    console.log("Guides: tabid3377@gmail.com, priya.guide@example.com");
 
     process.exit(0);
   } catch (err) {
@@ -259,3 +228,4 @@ const seed = async () => {
 };
 
 seed();
+
