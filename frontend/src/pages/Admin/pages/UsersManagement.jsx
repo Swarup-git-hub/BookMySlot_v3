@@ -332,22 +332,29 @@ export default function UsersManagement() {
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
                   Role *
                 </label>
-                <select
-                  value={formData.role}
-                  onChange={(e) => {
-                    const newRole = e.target.value;
-                    setFormData({...formData, role: newRole, team: newRole === 'student' ? formData.team : ''});
-                    setFormErrors({...formErrors, role: '', team: ''});
-                  }}
-                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition ${
-                    formErrors.role ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
-                  }`}
-                >
-                  <option value="">Select Role</option>
-                  <option value="student">Student</option>
-                  <option value="guide">Guide</option>
-                  <option value="admin">Admin</option>
-                </select>
+                {editingUser?.role === 'admin' ? (
+                  <div className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 flex items-center">
+                    <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                      Admin (Cannot be changed)
+                    </span>
+                  </div>
+                ) : (
+                  <select
+                    value={formData.role}
+                    onChange={(e) => {
+                      const newRole = e.target.value;
+                      setFormData({...formData, role: newRole, team: newRole === 'student' ? formData.team : ''});
+                      setFormErrors({...formErrors, role: '', team: ''});
+                    }}
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white transition ${
+                      formErrors.role ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
+                    }`}
+                  >
+                    <option value="">Select Role</option>
+                    <option value="student">Student</option>
+                    <option value="guide">Guide</option>
+                  </select>
+                )}
                 {formErrors.role && (
                   <p className="text-red-600 text-sm mt-1 flex items-center gap-1">
                     <AlertCircle size={14} /> {formErrors.role}
