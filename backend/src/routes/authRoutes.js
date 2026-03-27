@@ -4,10 +4,12 @@ import {
   verifyOtp,
   getProfile,
   createUser,
+  updateUser,
   logout,
   getAllUsers,
   deleteUser,
   initializeAdmin,
+  getMe,
 } from "../controllers/authController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
@@ -19,12 +21,14 @@ router.post("/verify-otp", verifyOtp);
 router.post("/initialize-admin", initializeAdmin);
 
 // Protected routes (authentication required)
+router.get("/me", protect, getMe);
 router.get("/profile", protect, getProfile);
 router.post("/logout", protect, logout);
 
 // Admin routes
 router.post("/users", protect, authorize("admin"), createUser);
 router.get("/users", protect, authorize("admin"), getAllUsers);
+router.put("/users/:userId", protect, authorize("admin"), updateUser);
 router.delete("/users/:userId", protect, authorize("admin"), deleteUser);
 
 export default router;

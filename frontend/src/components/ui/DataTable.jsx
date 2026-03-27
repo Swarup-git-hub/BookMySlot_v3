@@ -132,7 +132,9 @@ export default function DataTable({
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((row, index) => (
+            {paginatedData.map((row, index) => {
+              if (!row) return null; // Skip undefined rows
+              return (
               <tr
                 key={index}
                 className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -149,7 +151,7 @@ export default function DataTable({
                 )}
                 {columns.map((col) => (
                   <td key={col.key} className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
-                    {col.render ? col.render(row[col.key], row) : row[col.key]}
+                    {col.render ? col.render(row?.[col.key], row) : row?.[col.key] || '—'}
                   </td>
                 ))}
                 {(onEdit || onDelete || onAction) && (
@@ -183,7 +185,8 @@ export default function DataTable({
                   </td>
                 )}
               </tr>
-            ))}
+            );
+            })}
           </tbody>
         </table>
       </div>

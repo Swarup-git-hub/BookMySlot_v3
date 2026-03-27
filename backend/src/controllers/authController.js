@@ -251,6 +251,51 @@ export const initializeAdmin = async (req, res) => {
   }
 };
 
+// ✅ UPDATE USER (ADMIN ONLY)
+export const updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { name, email, role, team, isActive } = req.body;
+
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Validate email uniqueness if changed
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(409).json({ error: "Email already in use" });
+      }
+      user.email = email;
+    }
+
+    // Update fields
+    if (name) user.name = name;
+    if (role && role !== user.role) {
+      user.role = role;
+      // If changing to guide, clear team
+      if (role === "guide") user.team = null;
+    }
+    if (role === "student" && team) {
+      user.team = team;
+    }
+    if (isActive !== undefined) user.isActive = isActive;
+
+    await user.save();
+
+    res.json({
+      message: "User updated successfully",
+      user: user
+    });
+  } catch (err) {
+    console.error("❌ Update User Error:", err.message);
+    res.status(500).json({ error: "Failed to update user" });
+  }
+};
+
 // ✅ GET CURRENT USER
 export const getMe = async (req, res) => {
   try {
